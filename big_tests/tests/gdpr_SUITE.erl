@@ -222,21 +222,17 @@ retrieve_offline(Config) ->
             AliceJid = escalus_client:short_jid(Alice),
             KateJid = escalus_client:full_jid(Kate),
             ExpectedHeader = ["timestamp", "from", "to", "packet"],
-            ExpectedItems = [
-                             #{ "packet" => [{contains, Body1}],
-                                 "from" => binary_to_list(BobJid),
-                                 "to" => binary_to_list(AliceJid),
-                                 "timestamp" => [{validate, fun validate_datetime/1}]},
-                             #{ "packet" => [{contains, Body2}],
-                                 "from" => binary_to_list(BobJid),
-                                 "to" => binary_to_list(AliceJid),
-                                 "timestamp" => [{validate, fun validate_datetime/1}]},
-                             #{ "packet" => [{contains, Body3}],
-                                 "from" => binary_to_list(KateJid),
-                                 "to" => binary_to_list(AliceJid),
-                                 "timestamp" => [{validate, fun validate_datetime/1}]}
-                            ],
+            Expected = [{Body1, BobJid, AliceJid},  {Body2, BobJid, AliceJid}, {Body3, KateJid, AliceJid}],
+
+            ExpectedItems = lists:map(fun({Body, From ,To}) ->
+                #{ "packet" => [{contains, Body}],
+                    "from" => binary_to_list(From),
+                    "to" => binary_to_list(To),
+                    "timestamp" => [{validate, fun validate_datetime/1}]}
+            end, Expected),
+
             maybe_stop_and_unload_module(mod_offline, mod_offline_backend, Config),
+
             retrieve_and_validate_personal_data(
               Alice, Config, "offline", ExpectedHeader, ExpectedItems)
         end).
@@ -486,11 +482,7 @@ validate_sorted_personal_maps([Map | RMaps], [Checks | RChecks]) ->
     maps:fold(fun(K, Conditions, _) ->
                       validate_personal_item(maps:get(K, Map), Conditions)
               end, ok, Checks),
-<<<<<<< 0b85d95a6467c76e9c3cc66562fc6ff8a5839525
-validate_sorted_personal_maps(RMaps, RChecks).
-=======
     validate_sorted_personal_maps(RMaps, RChecks).
->>>>>>> Improve mod offline retrival test
 
 validate_personal_item(_Value, []) ->
     ok;
