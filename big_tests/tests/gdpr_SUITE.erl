@@ -56,7 +56,7 @@ groups() ->
                                            retrieve_vcard,
                                            %retrieve_roster,
                                            %retrieve_mam,
-                                           %retrieve_offline,
+                                           retrieve_offline,
                                            %retrieve_private_xml,
                                            %retrieve_inbox,
                                            retrieve_logs,
